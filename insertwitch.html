@@ -1,42 +1,987 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Insert Switch</title>
-    <style>
-        .warning-banner {
-            background-color: yellow;
-            color: black;
-            padding: 10px;
-            text-align: center;
-            font-weight: bold;
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🎮 Générateur d'Embed Twitch - Non Officiel</title>
+
+  <style>
+    :root {
+      --purple: #9146FF;
+      --purple-dark: #772ce8;
+      --success: #00c469;
+      --error: #ff4a4a;
+      --warning: #ffa500;
+      --bg-primary: #0b0b10;
+      --bg-card: rgba(255,255,255,.06);
+      --border: rgba(255,255,255,.12);
+      --text: #f3f4f6;
+      --muted: #adadb8;
+      --input-bg: rgba(0,0,0,.25);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: var(--bg-primary);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+    }
+
+    .container { max-width: 1400px; margin: 0 auto; }
+
+    /* BANDEAU */
+    .warning-banner {
+      background: linear-gradient(135deg, #ff4a4a, #ff6b6b);
+      color: white;
+      padding: 16px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-weight: 800;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(255,74,74,.3);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.9; }
+    }
+
+    header {
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid var(--border);
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #ff4a4a, #ff6b6b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subinfo {
+      font-size: 13px;
+      color: var(--muted);
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .badge {
+      display: inline-block;
+      background: #ff4a4a;
+      color: white;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 1200px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 32px rgba(0,0,0,.25);
+    }
+
+    .disclaimer-section {
+      background: rgba(255,74,74,.1);
+      border-left: 4px solid #ff4a4a;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 18px;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+    .disclaimer-section strong { color: #ff4a4a; font-weight: 900; }
+    .disclaimer-section ul { margin: 8px 0; padding-left: 20px; }
+    .disclaimer-section li { margin: 6px 0; }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: var(--purple);
+      letter-spacing: 0.5px;
+      margin: 22px 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title:first-child { margin-top: 0; }
+    .section-title::before {
+      content: "";
+      width: 4px;
+      height: 14px;
+      background: var(--purple);
+      border-radius: 2px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin: 12px 0 6px;
+      color: var(--text);
+    }
+
+    input[type="text"], input[type="url"], input[type="number"], textarea, select {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--input-bg);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--purple);
+      background: rgba(0,0,0,.4);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(145,70,255,.15);
+    }
+    input[aria-invalid="true"], select[aria-invalid="true"], textarea[aria-invalid="true"] {
+      border-color: var(--error);
+    }
+
+    textarea {
+      min-height: 160px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
+    .error-msg { font-size: 12px; color: var(--error); margin-top: 6px; }
+    .warn-msg { font-size: 12px; color: var(--warning); margin-top: 6px; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 768px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    .checkbox-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+      background: rgba(0,0,0,.15);
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      margin: 12px 0;
+    }
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+    .checkbox-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: var(--purple);
+    }
+    .checkbox-item label {
+      margin: 0;
+      cursor: pointer;
+      flex: 1;
+      font-weight: 700;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    @media (max-width: 768px) {
+      .buttons { grid-template-columns: 1fr; }
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-weight: 900;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--purple), var(--purple-dark));
+      color: white;
+      box-shadow: 0 4px 12px rgba(145,70,255,.3);
+    }
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(145,70,255,.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,.1);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(255,255,255,.15);
+    }
+
+    .status {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 800;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      animation: slideIn 0.3s ease;
+    }
+    .status.show { display: flex; }
+    .status.success { background: rgba(0,196,105,.15); border: 1px solid var(--success); color: var(--success); }
+    .status.error { background: rgba(255,74,74,.15); border: 1px solid var(--error); color: var(--error); }
+    .status.warning { background: rgba(255,165,0,.12); border: 1px solid var(--warning); color: var(--warning); }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .quality-bar {
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+    .quality-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--error), var(--warning), var(--success));
+      transition: width 0.3s ease;
+    }
+
+    .preview-container {
+      background: rgba(0,0,0,.4);
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      min-height: 480px;
+      padding: 16px;
+      overflow: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .preview-empty {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .preview-content {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      width: 100%;
+    }
+    .preview-content iframe {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #000;
+    }
+
+    .official-links {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .official-links a {
+      background: rgba(145,70,255,.1);
+      border: 1px solid var(--purple);
+      padding: 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--purple);
+      font-size: 12px;
+      text-align: center;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-weight: 800;
+    }
+    .official-links a:hover {
+      background: rgba(145,70,255,.2);
+      transform: translateY(-2px);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 18px 0;
+    }
+
+    code {
+      background: rgba(0,0,0,.3);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--purple);
+      outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="warning-banner" role="alert">
+      🚨 ⚠️ OUTIL NON OFFICIEL — TU ES RESPONSABLE DU CODE GÉNÉRÉ
+    </div>
+
+    <header>
+      <h1>🎮 Générateur d'Embed Twitch</h1>
+      <div class="subinfo">
+        Outil non officiel — conforme à la logique Twitch <code>parent=</code> (au 18.02.2026)
+        <span class="badge">non-official</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <!-- FORMULAIRE -->
+      <div class="card">
+        <div class="disclaimer-section">
+          <strong>⚠️ DISCLAIMER</strong>
+          <ul>
+            <li>Cet outil <strong>n'est pas officiel</strong> et n'est pas affilié à Twitch</li>
+            <li>Tu es <strong>entièrement responsable</strong> du code généré</li>
+            <li><code>parent</code> doit correspondre exactement au domaine qui intègre l’iframe (parfois plusieurs)</li>
+            <li>Twitch peut modifier ses règles à tout moment</li>
+          </ul>
+        </div>
+
+        <form id="form" novalidate>
+          <div class="section-title">Informations requises</div>
+
+          <label for="channel">Pseudo Twitch *</label>
+          <input id="channel" type="text" placeholder="ex: profstreamendormie" autocomplete="off" required />
+          <div class="hint">4 à 25 caractères (a-z, 0-9, _)</div>
+          <div id="channelErr" class="error-msg" aria-live="polite"></div>
+
+          <label for="domain">URL HTTPS de ton site *</label>
+          <input id="domain" type="url" placeholder="https://exemple.com/page" autocomplete="off" required />
+          <div class="hint">On extrait automatiquement le domaine pour <code>parent=</code></div>
+          <div id="domainErr" class="error-msg" aria-live="polite"></div>
+
+          <div class="divider"></div>
+
+          <div class="section-title">Parents supplémentaires (recommandé)</div>
+
+          <div class="checkbox-item">
+            <input id="addWwwVariant" type="checkbox" />
+            <label for="addWwwVariant">Ajouter aussi la variante <strong>www</strong> / <strong>sans-www</strong></label>
+          </div>
+          <div class="hint">Utile si ton site répond aux deux (ex: <code>exemple.com</code> et <code>www.exemple.com</code>).</div>
+
+          <label for="extraParents">Parents supplémentaires (optionnel)</label>
+          <input id="extraParents" type="text" placeholder="blog.exemple.com, exemple.github.io" autocomplete="off" />
+          <div class="hint">Séparés par virgules ou espaces. Tu peux coller des URLs : on garde juste le hostname.</div>
+          <div id="parentsErr" class="error-msg" aria-live="polite"></div>
+
+          <div class="divider"></div>
+
+          <div class="grid-2">
+            <div>
+              <label for="width">Largeur (min 400px)</label>
+              <input id="width" type="number" value="940" min="400" max="3840" />
+            </div>
+            <div>
+              <label for="height">Hauteur (min 300px)</label>
+              <input id="height" type="number" value="480" min="300" max="2160" />
+            </div>
+          </div>
+          <div id="sizeErr" class="error-msg" aria-live="polite"></div>
+
+          <div class="section-title">Options</div>
+
+          <div class="checkbox-group" role="group" aria-label="Options Twitch">
+            <div class="checkbox-item">
+              <input id="withChat" type="checkbox" checked />
+              <label for="withChat">💬 Chat</label>
+            </div>
+            <div class="checkbox-item">
+              <input id="autoplay" type="checkbox" checked />
+              <label for="autoplay">▶️ Autoplay</label>
+            </div>
+            <div class="checkbox-item">
+              <input id="muted" type="checkbox" />
+              <label for="muted">🔇 Muet</label>
+            </div>
+            <div class="checkbox-item">
+              <input id="fullscreen" type="checkbox" checked />
+              <label for="fullscreen">⛶ Plein écran</label>
+            </div>
+          </div>
+
+          <label for="theme">Thème du chat</label>
+          <select id="theme">
+            <option value="dark">Sombre (défaut)</option>
+            <option value="light">Clair</option>
+          </select>
+
+          <div class="divider"></div>
+
+          <label for="chatWidth">Largeur du chat (px)</label>
+          <input id="chatWidth" type="number" value="350" min="300" max="600" />
+
+          <label for="bgUrl">Image de fond (HTTPS, optionnel)</label>
+          <input id="bgUrl" type="url" placeholder="https://..." />
+          <div class="checkbox-item" style="margin-top: 8px;">
+            <input id="bgRights" type="checkbox" />
+            <label for="bgRights">J'ai les droits d'utilisation</label>
+          </div>
+          <div id="bgErr" class="error-msg" aria-live="polite"></div>
+
+          <div class="divider"></div>
+
+          <div class="checkbox-item">
+            <input id="terms" type="checkbox" required />
+            <label for="terms">
+              Je comprends que cet outil est <strong>NON OFFICIEL</strong> et j’accepte d’être responsable du code généré.
+            </label>
+          </div>
+
+          <div class="buttons">
+            <button type="button" id="generateBtn" class="btn-primary" disabled>⚡ Générer</button>
+            <button type="button" id="copyBtn" class="btn-secondary" disabled>📋 Copier</button>
+          </div>
+
+          <button type="button" id="downloadBtn" class="btn-secondary" style="width:100%; margin-top: 10px;" disabled>
+            📥 Télécharger HTML
+          </button>
+
+          <div id="status" class="status" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+
+      <!-- SORTIE + APERÇU -->
+      <div class="card">
+        <div class="section-title">Code généré</div>
+        <textarea id="output" readonly placeholder="Le code apparaîtra ici..."></textarea>
+        <div class="quality-bar"><div id="qualityFill" class="quality-fill"></div></div>
+
+        <div class="section-title" style="margin-top: 24px;">Aperçu (démo)</div>
+        <div class="preview-container">
+          <div id="previewContent">
+            <div class="preview-empty">
+              <p>Remplis le formulaire et clique sur <strong>Générer</strong></p>
+              <p style="font-size: 11px; opacity: 0.8;">
+                L’aperçu utilise <code>window.location.hostname</code> comme <code>parent</code> pour maximiser les chances d’affichage.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title" style="margin-top: 24px;">🔗 Ressources Officielles</div>
+        <div class="official-links">
+          <a href="https://dev.twitch.tv" target="_blank" rel="noopener noreferrer">📖 Developer Console</a>
+          <a href="https://dev.twitch.tv/docs" target="_blank" rel="noopener noreferrer">📚 Documentation</a>
+          <a href="https://www.twitch.tv/p/legal/terms-of-service" target="_blank" rel="noopener noreferrer">⚖️ Conditions</a>
+          <a href="https://dev.twitch.tv/console/security" target="_blank" rel="noopener noreferrer">🛡️ Security</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const PREVIEW_PARENT = window.location.hostname || "localhost";
+    const MIN_WIDTH = 400;
+    const MIN_HEIGHT = 300;
+
+    const $ = (id) => document.getElementById(id);
+
+    const els = {
+      form: $("form"),
+      channel: $("channel"),
+      domain: $("domain"),
+      addWwwVariant: $("addWwwVariant"),
+      extraParents: $("extraParents"),
+      width: $("width"),
+      height: $("height"),
+      chatWidth: $("chatWidth"),
+      withChat: $("withChat"),
+      autoplay: $("autoplay"),
+      muted: $("muted"),
+      fullscreen: $("fullscreen"),
+      theme: $("theme"),
+      bgUrl: $("bgUrl"),
+      bgRights: $("bgRights"),
+      terms: $("terms"),
+      generateBtn: $("generateBtn"),
+      copyBtn: $("copyBtn"),
+      downloadBtn: $("downloadBtn"),
+      output: $("output"),
+      previewContent: $("previewContent"),
+      status: $("status"),
+      qualityFill: $("qualityFill"),
+      channelErr: $("channelErr"),
+      domainErr: $("domainErr"),
+      parentsErr: $("parentsErr"),
+      sizeErr: $("sizeErr"),
+      bgErr: $("bgErr"),
+    };
+
+    function showStatus(msg, type = "success", timeout = 3500) {
+      els.status.className = `status show ${type}`;
+      els.status.textContent = msg;
+      if (timeout > 0) setTimeout(() => els.status.classList.remove("show"), timeout);
+    }
+
+    function clearErrors() {
+      [els.channelErr, els.domainErr, els.parentsErr, els.sizeErr, els.bgErr].forEach((el) => el.textContent = "");
+      [els.channel, els.domain, els.extraParents, els.width, els.height, els.bgUrl].forEach((el) => el.removeAttribute("aria-invalid"));
+    }
+
+    function normalizeHost(input) {
+      let s = String(input || "").trim().toLowerCase();
+      s = s.replace(/^(https?:)?\/\//, "");
+      s = s.split("/")[0].split("?")[0].split("#")[0];
+      return s;
+    }
+
+    function isValidHost(host) {
+      if (!host) return false;
+      if (host === "localhost") return true;
+      const re = /^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9-]{2,63}$/i;
+      return re.test(host);
+    }
+
+    // Main site URL: require HTTPS, extract hostname
+    function parseHttpsSiteUrl(input) {
+      const raw = String(input || "").trim();
+      if (!raw) return { ok: false, error: "Requis" };
+
+      const candidate = (raw.includes("://")) ? raw : `https://${raw}`;
+      let url;
+      try { url = new URL(candidate); }
+      catch { return { ok: false, error: "URL invalide" }; }
+
+      if (url.protocol !== "https:") return { ok: false, error: "HTTPS obligatoire" };
+      const host = (url.hostname || "").toLowerCase();
+      if (!isValidHost(host)) return { ok: false, error: "Domaine invalide" };
+
+      return { ok: true, hostname: host, normalizedUrl: `https://${host}` };
+    }
+
+    // Accept host OR URL for extra parents, keep hostname
+    function parseParentToken(token) {
+      const t = String(token || "").trim();
+      if (!t) return { ok: false };
+      // If looks like URL, parse it; otherwise treat as host
+      if (t.includes("://")) {
+        try {
+          const u = new URL(t);
+          const host = (u.hostname || "").toLowerCase();
+          if (!isValidHost(host)) return { ok: false, error: `Parent invalide: ${t}` };
+          return { ok: true, hostname: host };
+        } catch {
+          return { ok: false, error: `Parent invalide: ${t}` };
         }
-        .disclaimer {
-            background-color: #f9f9f9;
-            border: 1px solid #ccc;
-            padding: 15px;
-            margin: 20px 0;
+      }
+      const host = normalizeHost(t);
+      if (!isValidHost(host)) return { ok: false, error: `Parent invalide: ${t}` };
+      return { ok: true, hostname: host };
+    }
+
+    function splitParents(input) {
+      const parts = String(input || "")
+        .split(/[,\s]+/g)
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      const hosts = [];
+      const invalid = [];
+
+      for (const p of parts) {
+        const res = parseParentToken(p);
+        if (res.ok) hosts.push(res.hostname);
+        else if (res.error) invalid.push(res.error);
+      }
+      return { hosts, invalid };
+    }
+
+    function unique(arr) {
+      return [...new Set(arr)];
+    }
+
+    function expandWwwVariant(host) {
+      if (!host || host === "localhost") return [host].filter(Boolean);
+      if (host.startsWith("www.")) return [host, host.replace(/^www\./, "")];
+      return [host, `www.${host}`];
+    }
+
+    function validateChannel(ch) {
+      const raw = String(ch || "").trim();
+      if (!raw) return { ok: false, error: "Requis" };
+      if (!/^[a-z0-9_]{4,25}$/i.test(raw)) return { ok: false, error: "4–25 caractères (a-z, 0-9, _)" };
+      return { ok: true, channel: raw.toLowerCase() };
+    }
+
+    function validateSize(w, h, cw) {
+      const W = Number(w), H = Number(h), CW = Number(cw);
+      if (!Number.isFinite(W) || !Number.isFinite(H) || !Number.isFinite(CW)) return { ok: false, error: "Nombres invalides" };
+      if (W < MIN_WIDTH || H < MIN_HEIGHT) return { ok: false, error: `Min: ${MIN_WIDTH}×${MIN_HEIGHT}px` };
+      if (CW < 300) return { ok: false, error: "Chat min: 300px" };
+      return { ok: true, width: W, height: H, chatWidth: CW };
+    }
+
+    function validateBg(url, rights) {
+      const raw = String(url || "").trim();
+      if (!raw) return { ok: true, bgUrl: "" };
+
+      // bloque guillemets / retours ligne / backslash -> évite casse CSS/HTML
+      if (/["'\n\r\\]/.test(raw)) {
+        return { ok: false, error: "URL image: caractères interdits (guillemets / retours ligne)." };
+      }
+
+      let u;
+      try { u = new URL(raw.includes("://") ? raw : `https://${raw}`); }
+      catch { return { ok: false, error: "Image: URL invalide" }; }
+
+      if (u.protocol !== "https:") return { ok: false, error: "Image: HTTPS obligatoire" };
+      if (!rights) return { ok: false, error: "Coche les droits d'utilisation" };
+
+      return { ok: true, bgUrl: u.toString() };
+    }
+
+    function buildParents(mainHost) {
+      const extra = splitParents(els.extraParents.value);
+      const invalid = extra.invalid;
+
+      let parents = [mainHost, ...extra.hosts];
+
+      if (els.addWwwVariant.checked) {
+        parents = [...expandWwwVariant(mainHost), ...extra.hosts];
+      }
+
+      parents = unique(parents.filter(Boolean));
+
+      return { parents, invalid };
+    }
+
+    // Build Twitch URLs (multi-parent support)
+    function buildUrls(channel, parents, forPreview = false) {
+      const effectiveParents = forPreview ? [PREVIEW_PARENT] : parents;
+
+      const playerParams = new URLSearchParams();
+      playerParams.set("channel", channel);
+      playerParams.set("autoplay", String(els.autoplay.checked));
+      playerParams.set("muted", String(els.muted.checked));
+      effectiveParents.forEach(p => playerParams.append("parent", p));
+
+      const chatParams = new URLSearchParams();
+      chatParams.set("darkpopout", String(els.theme.value === "dark"));
+      effectiveParents.forEach(p => chatParams.append("parent", p));
+
+      return {
+        player: `https://player.twitch.tv/?${playerParams.toString()}`,
+        chat: `https://www.twitch.tv/embed/${encodeURIComponent(channel)}/chat?${chatParams.toString()}`
+      };
+    }
+
+    function generateCode(channel, parents, width, height, chatWidth, bgUrl) {
+      const urls = buildUrls(channel, parents, false);
+      const parentsComment = parents.map(p => `parent=${p}`).join(" | ");
+
+      const safeBg = bgUrl ? bgUrl : "";
+
+      let html = `<!-- Embed Twitch généré (outil NON OFFICIEL) le ${new Date().toLocaleDateString("fr-FR")} -->\n`;
+      html += `<!-- ${parentsComment} -->\n`;
+
+      const wrapperStyle = safeBg
+        ? `style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;padding:16px;border-radius:10px;background-image:url(\\"${safeBg}\\");background-size:cover;background-position:center;"`
+        : `style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;"`;
+
+      html += `<div class="twitch-embed-wrapper" ${wrapperStyle}>\n`;
+      html += `  <iframe\n`;
+      html += `    src="${urls.player}"\n`;
+      html += `    width="${width}"\n`;
+      html += `    height="${height}"\n`;
+      html += `    style="border:0"\n`;
+      html += `    referrerpolicy="origin"\n`;
+      html += `    loading="lazy"\n`;
+      html += `    allow="autoplay${els.fullscreen.checked ? "; fullscreen" : ""}"\n`;
+      if (els.fullscreen.checked) html += `    allowfullscreen\n`;
+      html += `  ></iframe>\n`;
+
+      if (els.withChat.checked) {
+        html += `  <iframe\n`;
+        html += `    src="${urls.chat}"\n`;
+        html += `    width="${chatWidth}"\n`;
+        html += `    height="${height}"\n`;
+        html += `    style="border:0"\n`;
+        html += `    referrerpolicy="origin"\n`;
+        html += `    loading="lazy"\n`;
+        html += `  ></iframe>\n`;
+      }
+
+      html += `</div>`;
+      return html;
+    }
+
+    function renderPreview(channel, parents, width, height, chatWidth) {
+      const urls = buildUrls(channel, parents, true);
+
+      // DOM-safe: pas de innerHTML
+      els.previewContent.textContent = "";
+
+      const wrap = document.createElement("div");
+      wrap.className = "preview-content";
+
+      const player = document.createElement("iframe");
+      player.src = urls.player;
+      player.width = String(Math.min(width, 420));
+      player.height = String(Math.min(height, 300));
+      player.style.border = "0";
+      player.loading = "lazy";
+      player.referrerPolicy = "origin";
+      player.allow = `autoplay${els.fullscreen.checked ? "; fullscreen" : ""}`;
+      if (els.fullscreen.checked) player.setAttribute("allowfullscreen", "");
+      wrap.appendChild(player);
+
+      if (els.withChat.checked) {
+        const chat = document.createElement("iframe");
+        chat.src = urls.chat;
+        chat.width = String(Math.min(chatWidth, 320));
+        chat.height = String(Math.min(height, 300));
+        chat.style.border = "0";
+        chat.loading = "lazy";
+        chat.referrerPolicy = "origin";
+        wrap.appendChild(chat);
+      }
+
+      els.previewContent.appendChild(wrap);
+    }
+
+    function updateQuality(chOk, dmOk, parentsOk) {
+      let score = 0;
+      if (chOk) score += 40;
+      if (dmOk) score += 40;
+      if (parentsOk) score += 10;
+      if (els.terms.checked) score += 10;
+      els.qualityFill.style.width = score + "%";
+    }
+
+    function updateButtons() {
+      clearErrors();
+
+      const ch = validateChannel(els.channel.value);
+      const dm = parseHttpsSiteUrl(els.domain.value);
+      const sz = validateSize(els.width.value, els.height.value, els.chatWidth.value);
+      const bg = validateBg(els.bgUrl.value, els.bgRights.checked);
+
+      // Parents (only if domain OK)
+      let parentsRes = { parents: [], invalid: [] };
+      if (dm.ok) parentsRes = buildParents(dm.hostname);
+
+      const parentsOk = dm.ok && parentsRes.invalid.length === 0;
+
+      // Afficher erreurs (pas trop agressif)
+      if (els.channel.value && !ch.ok) {
+        els.channelErr.textContent = ch.error;
+        els.channel.setAttribute("aria-invalid", "true");
+      }
+
+      if (els.domain.value && !dm.ok) {
+        els.domainErr.textContent = dm.error;
+        els.domain.setAttribute("aria-invalid", "true");
+      }
+
+      if (dm.ok && parentsRes.invalid.length) {
+        els.parentsErr.textContent = parentsRes.invalid[0]; // premier message
+        els.extraParents.setAttribute("aria-invalid", "true");
+      }
+
+      if (!sz.ok) {
+        els.sizeErr.textContent = sz.error;
+        els.width.setAttribute("aria-invalid", "true");
+        els.height.setAttribute("aria-invalid", "true");
+      }
+
+      if (els.bgUrl.value && !bg.ok) {
+        els.bgErr.textContent = bg.error;
+        els.bgUrl.setAttribute("aria-invalid", "true");
+      }
+
+      const canGenerate = ch.ok && dm.ok && parentsOk && sz.ok && bg.ok && els.terms.checked;
+      const hasOutput = els.output.value.trim().length > 0;
+
+      els.generateBtn.disabled = !canGenerate;
+      els.copyBtn.disabled = !(hasOutput && els.terms.checked);
+      els.downloadBtn.disabled = !(hasOutput && els.terms.checked);
+
+      updateQuality(ch.ok, dm.ok, parentsOk);
+    }
+
+    async function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+      // fallback
+      els.output.focus();
+      els.output.select();
+      try {
+        const ok = document.execCommand("copy");
+        window.getSelection?.().removeAllRanges?.();
+        return ok;
+      } catch {
+        return false;
+      }
+    }
+
+    els.form.addEventListener("input", updateButtons);
+    els.form.addEventListener("change", updateButtons);
+
+    els.generateBtn.addEventListener("click", () => {
+      clearErrors();
+
+      const ch = validateChannel(els.channel.value);
+      const dm = parseHttpsSiteUrl(els.domain.value);
+      const sz = validateSize(els.width.value, els.height.value, els.chatWidth.value);
+      const bg = validateBg(els.bgUrl.value, els.bgRights.checked);
+
+      if (!els.terms.checked) return showStatus("❌ Accepte les conditions", "error", 2500);
+      if (!ch.ok || !dm.ok || !sz.ok || !bg.ok) {
+        if (!ch.ok) { els.channelErr.textContent = ch.error; els.channel.setAttribute("aria-invalid", "true"); }
+        if (!dm.ok) { els.domainErr.textContent = dm.error; els.domain.setAttribute("aria-invalid", "true"); }
+        if (!sz.ok) {
+          els.sizeErr.textContent = sz.error;
+          els.width.setAttribute("aria-invalid", "true");
+          els.height.setAttribute("aria-invalid", "true");
         }
-        .twitch-links {
-            margin: 20px 0;
-        }
-    </style>
+        if (!bg.ok) { els.bgErr.textContent = bg.error; els.bgUrl.setAttribute("aria-invalid", "true"); }
+        showStatus("❌ Corrige les erreurs", "error", 2500);
+        return;
+      }
+
+      const parentsRes = buildParents(dm.hostname);
+      if (parentsRes.invalid.length) {
+        els.parentsErr.textContent = parentsRes.invalid[0];
+        els.extraParents.setAttribute("aria-invalid", "true");
+        showStatus("❌ Corrige les parents supplémentaires", "error", 2500);
+        return;
+      }
+
+      // Normaliser l’URL visible (optionnel mais utile)
+      els.domain.value = dm.normalizedUrl;
+
+      const code = generateCode(ch.channel, parentsRes.parents, sz.width, sz.height, sz.chatWidth, bg.bgUrl);
+      els.output.value = code;
+
+      renderPreview(ch.channel, parentsRes.parents, sz.width, sz.height, sz.chatWidth);
+
+      showStatus(`✅ Code généré ! Parents: ${parentsRes.parents.join(", ")}`, "success", 3500);
+      updateButtons();
+    });
+
+    els.copyBtn.addEventListener("click", async () => {
+      if (!els.terms.checked) return showStatus("❌ Accepte les conditions", "error", 2000);
+      if (!els.output.value.trim()) return showStatus("⚠️ Rien à copier", "warning", 2000);
+
+      const ok = await copyToClipboard(els.output.value);
+      showStatus(ok ? "📋 Copié !" : "❌ Copie impossible. Copie manuellement.", ok ? "success" : "error", 2000);
+    });
+
+    els.downloadBtn.addEventListener("click", () => {
+      if (!els.terms.checked) return showStatus("❌ Accepte les conditions", "error", 2000);
+      if (!els.output.value.trim()) return showStatus("⚠️ Génère d’abord le code", "warning", 2000);
+
+      const safeName = (validateChannel(els.channel.value).ok ? validateChannel(els.channel.value).channel : "twitch")
+        .replace(/[^a-z0-9_]+/gi, "_")
+        .slice(0, 40);
+
+      const html = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Embed Twitch (Non Officiel)</title>
+  <style>
+    body { margin: 0; padding: 20px; background: #0e0e10; color: #f3f4f6; font-family: system-ui, sans-serif; }
+    .warning { background: #ff4a4a; color: white; padding: 10px 12px; border-radius: 8px; font-weight: 800; margin-bottom: 16px; }
+    .container { max-width: 1400px; margin: 0 auto; }
+  </style>
 </head>
 <body>
-    <h1>Insert Switch</h1>
-    <div class="warning-banner">Warning: Please follow all Twitch community guidelines when using this tool.</div>
-    <div class="disclaimer">
-        <strong>Disclaimer:</strong>
-        This is a community tool and is not affiliated with Twitch. Use at your own risk.
-    </div>
-    <div class="twitch-links">
-        <h3>Official Twitch Links:</h3>
-        <ul>
-            <li><a href="https://www.twitch.tv/">Twitch Home</a></li>
-            <li><a href="https://www.twitch.tv/p/legal">Twitch Terms of Service</a></li>
-            <li><a href="https://www.twitch.tv/p/privacy">Twitch Privacy Policy</a></li>
-        </ul>
-    </div>
+  <div class="warning">⚠️ Embed généré avec un outil NON OFFICIEL. Vérifie que le paramètre <code>parent</code> correspond au domaine exact.</div>
+  <div class="container">
+${els.output.value.split("\n").map((line) => "    " + line).join("\n")}
+  </div>
+</body>
+</html>`;
+
+      const blob = new Blob([html], { type: "text/html; charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `twitch-embed-${safeName}.html`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showStatus("📥 HTML téléchargé !", "success", 2000);
+    });
+
+    // Init
+    updateButtons();
+    showStatus("⚠️ Outil NON OFFICIEL — accepte les conditions avant de générer", "warning", 0);
+  </script>
 </body>
 </html>
