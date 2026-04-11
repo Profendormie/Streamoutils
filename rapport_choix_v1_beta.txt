@@ -1,0 +1,50 @@
+Chess AI Analyzer - Rapport de choix (v1 bêta)
+
+1) Objectif produit
+- Mise en place d’un site statique avec 2 pages minimum:
+  - index.html: utilité, périmètre, options possibles.
+  - insertwitch.html: outil PGN principal.
+- Thème graphique unique entre les deux pages.
+
+2) Choix d’interface
+- Conteneur principal en hauteur fixe avec panneaux internes.
+- Informations majeures visibles sans scroller la page entière sur écran bureau.
+- Mise en page responsive pour maintenir la lisibilité sur écran réduit.
+
+3) Lecture PGN
+- Parsing des balises standards [Event], [White], [Black], etc.
+- Séparation de la ligne principale et des variantes secondaires via parenthèses.
+- Extraction des commentaires { ... } pour enrichir l’analyse.
+
+4) Compatibilité notations
+- Normalisation de caractères spéciaux observés dans différents exports:
+  - Résultats unicode (½, tirets longs).
+  - Symboles unicode des pièces.
+  - Multiplicateur de capture (×) et signes +/# en variantes unicode.
+
+5) Analyse de style
+- Métriques de base:
+  - Captures, checks/mats, promotions, roques.
+  - Activité des pièces vs mouvements de pions.
+  - Nombre de variantes et de commentaires.
+- Heuristique de profil:
+  - tactique/dynamique
+  - positionnel/progressif
+  - équilibré
+- Prise en compte des commentaires si signal d’auto-annotation joueur.
+
+6) Sécurité et robustesse
+- Nettoyage des caractères de contrôle avant parsing.
+- Pas d’injection HTML non maîtrisée dans les résultats (usage textContent).
+- Contrôle de taille des fichiers importés (2 Mo).
+
+7) Maintenabilité
+- Script unique natif (sans dépendance externe) pour simplifier les mises à jour.
+- Fonctions séparées: sanitize, normalize, parse, analyze, report.
+- Export texte pour servir de base de rapport .docx.
+
+8) Propositions d’options futures
+- Analyse multi-parties par joueur.
+- Découpage phase ouverture / milieu / finale.
+- Export DOCX/PDF direct.
+- Détection de motifs tactiques (clouage, fourchette, etc.).
