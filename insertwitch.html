@@ -76,13 +76,23 @@
     function parseHeaders(pgn){const h={},r=/^\[(\w+)\s+"([^"]*)"\]/gm; let m; while((m=r.exec(pgn))!==null){h[m[1]]=m[2];} return h;}
     const extractMovetext = (pgn) => pgn.replace(/^\[[^\]]+\]\s*$/gm,'').trim();
     function splitMainAndVariations(movetext){
-      const tokens=movetext.split(/\s+/).filter(Boolean), stack=[], main=[], variations=[]; let current=[];
-      for(const tokenRaw of tokens){ const token=tokenRaw.trim(); if(!token) continue; if(token.includes('{')||token.includes('}')) continue; if(/^\d+\.(\.\.)?$/.test(token)) continue; if(/^(1-0|0-1|1\/2-1\/2|\*)$/.test(token)) continue;
-        if(token.includes('(')){ stack.push('('); const c=token.replace(/\(/g,''); if(c) current.push(c); continue; }
-        if(token.includes(')')){ const c=token.replace(/\)/g,''); if(c) current.push(c); if(current.length) variations.push(current.join(' ')); current=[]; stack.pop(); continue; }
-        if(stack.length>0) current.push(token); else main.push(token);
+      // Parentheses are separate tokens even in compact PGN such as e6))e5.
+      const tokens=movetext.match(/[()]|[^\s()]+/g)||[], main=[], variations=[], stack=[main];
+      for(const tokenRaw of tokens){
+        if(tokenRaw==='('){
+          const variation=[]; variations.push(variation); stack.push(variation); continue;
+        }
+        if(tokenRaw===')'){
+          if(stack.length>1) stack.pop();
+          continue;
+        }
+        // Keep the SAN move after a standalone or attached move number.
+        const token=tokenRaw.replace(/^\d+\.+/,'');
+        if(!token||token.includes('{')||token.includes('}')) continue;
+        if(/^(1-0|0-1|1\/2-1\/2|\*)$/.test(token)) continue;
+        stack[stack.length-1].push(token);
       }
-      if(current.length) variations.push(current.join(' ')); return {main,variations};
+      return {main,variations:variations.filter((line)=>line.length).map((line)=>line.join(' '))};
     }
     function extractComments(pgn){const c=[],r=/\{([^}]*)\}/g; let m; while((m=r.exec(pgn))!==null){c.push(m[1].trim());} return c;}
     function analyzeMoves(mainMoves,variations,comments,headers){
