@@ -1,30 +1,158 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Twitch Embed</title>
-    <style>
-        body { font-family: Arial, sans-serif; }
-        .embed-container { position: relative; padding-bottom: 56.25%; /* 16:9 */ padding-top: 25px; height: 0; overflow: hidden; }
-        .embed-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chess AI Analyzer - v1 bêta</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg-soft: #111c36;
+      --card: #172554;
+      --line: #334155;
+      --txt: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at top, #1e293b, var(--bg));
+      color: var(--txt);
+      font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
+      padding: 16px;
+    }
+    .app {
+      width: min(1200px, 100%);
+      height: min(94vh, 820px);
+      background: color-mix(in hsl, var(--bg-soft) 88%, black);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      overflow: hidden;
+      box-shadow: 0 12px 34px rgba(0, 0, 0, 0.35);
+    }
+    header, footer { padding: 14px 18px; border-bottom: 1px solid var(--line); }
+    footer { border-top: 1px solid var(--line); border-bottom: none; color: var(--muted); font-size: 12px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+    h1 { margin: 0; font-size: 22px; }
+    .badge { color: #04111e; background: var(--accent); font-size: 12px; font-weight: 700; border-radius: 999px; padding: 4px 10px; margin-left: 10px; }
+    main {
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 12px;
+      min-height: 0;
+    }
+    @media (max-width: 920px) { main { grid-template-columns: 1fr; overflow-y: auto; } }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.08));
+      padding: 14px;
+      min-height: 0;
+      overflow: auto;
+    }
+    h2 { margin: 0 0 10px; font-size: 16px; color: var(--accent); }
+    p { margin: 6px 0; }
+    ul { margin: 8px 0; padding-left: 18px; }
+    li { margin: 4px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .tile { border: 1px solid var(--line); border-radius: 10px; padding: 10px; background: rgba(12, 28, 57, .5); }
+    a.button {
+      display: inline-flex;
+      text-decoration: none;
+      color: #04111e;
+      font-weight: 800;
+      background: var(--accent);
+      padding: 11px 14px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+    .ok { color: var(--ok); }
+    .warn { color: var(--warn); }
+    .small { color: var(--muted); font-size: 13px; }
+  </style>
 </head>
 <body>
-    <h1>Twitch Embed Generator v2.0</h1>
-    <p>Enter your Twitch username below to generate an embed code:</p>
-    <input type="text" id="twitchUser" placeholder="Twitch Username">
-    <button id="generateBtn">Generate Embed Code</button>
-    <div id="embedCode" class="embed-container">
-        <!-- Embedded Twitch stream will be displayed here -->
-        <iframe src="https://player.twitch.tv/?channel=CHANNEL_NAME" frameborder="0" allowfullscreen="true" scrolling="no"></iframe>
-    </div>
-    <script>
-        document.getElementById('generateBtn').addEventListener('click', function() {
-            var username = document.getElementById('twitchUser').value;
-            var iframe = document.querySelector('iframe');
-            iframe.src = 'https://player.twitch.tv/?channel=' + username;
-        });
-    </script>
+  <div class="app">
+    <header>
+      <h1>Chess AI Analyzer <span class="badge">v1 bêta</span></h1>
+      <p class="small">Site statique. Analyse PGN multi-source (Lichess, Chess.com, ChessBase) avec lecture des variantes principales et secondaires.</p>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>Utilité de l’outil</h2>
+        <p>Cet outil sert à lire rapidement un PGN, unifier les caractères spéciaux selon la plateforme d’origine, puis générer une synthèse du style de jeu.</p>
+
+        <div class="grid">
+          <article class="tile">
+            <strong>Lecture des coups</strong>
+            <ul>
+              <li>Suite principale détectée.</li>
+              <li>Variantes secondaires détectées via parenthèses.</li>
+              <li>Conversion des symboles spéciaux en format lisible.</li>
+            </ul>
+          </article>
+          <article class="tile">
+            <strong>Analyse de style</strong>
+            <ul>
+              <li>Mesure activité pièces, captures, checks, promotions.</li>
+              <li>Score de tendance tactique/positionnelle.</li>
+              <li>Prise en compte des commentaires du PGN.</li>
+            </ul>
+          </article>
+          <article class="tile">
+            <strong>Import</strong>
+            <ul>
+              <li>Coller un PGN.</li>
+              <li>Importer un fichier <code>.pgn</code>.</li>
+              <li>Compatible exports Lichess et Chess.com.</li>
+            </ul>
+          </article>
+          <article class="tile">
+            <strong>Sortie rapport</strong>
+            <ul>
+              <li>Résumé immédiat à l’écran.</li>
+              <li>Export texte format rapport.</li>
+              <li>Base de travail pour un document .docx.</li>
+            </ul>
+          </article>
+        </div>
+
+        <a class="button" href="insertwitch.html">Ouvrir l’outil PGN</a>
+      </section>
+
+      <aside class="card">
+        <h2>Options proposées (version actuelle)</h2>
+        <ul>
+          <li>Activer/désactiver la prise en compte des commentaires.</li>
+          <li>Comparer style Blancs vs Noirs pour un joueur donné.</li>
+          <li>Filtrer les parties selon cadence et résultat.</li>
+          <li>Pondérer séparément coups principaux et variantes.</li>
+          <li>Affiner la détection de style avec un modèle Elo estimé.</li>
+        </ul>
+
+        <h2>Interface</h2>
+        <p class="ok">Conçue en panneau fixe pour éviter le défilement de page.</p>
+        <p class="small">Sur petit écran, la zone interne devient défilante pour préserver la lisibilité sans casser la structure.</p>
+
+        <h2>Retour utilisateur</h2>
+        <p>Les avis positifs et négatifs sont acceptés. Ils servent à préparer la prochaine itération sans changer le statut <strong>v1 bêta</strong>.</p>
+        <p class="warn">Pour une intégration GitHub, copier le dossier tel quel dans le dépôt cible.</p>
+      </aside>
+    </main>
+
+    <footer>
+      <span>Thème unifié avec la page outil.</span>
+      <span>Version produit: v1 bêta.</span>
+    </footer>
+  </div>
 </body>
 </html>
